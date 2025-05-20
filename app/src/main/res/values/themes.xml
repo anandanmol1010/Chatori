@@ -1,0 +1,45 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Chatori" parent="Theme.MaterialComponents.DayNight">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryDark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Background colors. -->
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <!-- Text colors. -->
+        <item name="android:textColorPrimary">@color/colorTextPrimary</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+        <!-- Accent color. -->
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    
+    <!-- NoActionBar theme for splash screen and other full-screen activities -->
+    <style name="Theme.Chatori.NoActionBar" parent="Theme.Chatori">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Theme for activities with Toolbars -->
+    <style name="Theme.Chatori.Toolbar" parent="Theme.Chatori">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    
+    <!-- Splash screen theme -->
+    <style name="Theme.Chatori.Splash" parent="Theme.Chatori.NoActionBar">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+    </style>
+    
+    <!-- AppBar and Toolbar styles -->
+    <style name="Theme.Chatori.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    
+    <style name="Theme.Chatori.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+</resources>

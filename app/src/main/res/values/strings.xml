@@ -1,0 +1,193 @@
+<resources>
+    <!-- App name and general strings -->
+    <string name="app_name">Chatori</string>
+    <string name="app_tagline">Discover the best street food near you</string>
+    
+    <!-- Authentication strings -->
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="name">Name</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="already_have_account">Already have an account? Login</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+    <string name="logout">Logout</string>
+    
+    <!-- Home screen strings -->
+    <string name="search_hint">Search for dishes or areas…</string>
+    <string name="recommended_stalls">Recommended Stalls</string>
+    <string name="nearby_stalls">Nearby Stalls</string>
+    <string name="top_rated_stalls">Top Rated</string>
+    <string name="view_all">View All</string>
+    
+    <!-- Search and filter strings -->
+    <string name="search_results">Search Results</string>
+    <string name="filter">Filter</string>
+    <string name="sort_by">Sort By</string>
+    <string name="dish_type">Dish Type</string>
+    <string name="area">Area</string>
+    <string name="rating">Rating</string>
+    <string name="distance">Distance</string>
+    <string name="apply_filters">Apply Filters</string>
+    <string name="clear_filters">Clear Filters</string>
+    <string name="no_results_found">No results found</string>
+    
+    <!-- Stall detail strings -->
+    <string name="stall_details">Stall Details</string>
+    <string name="photos">Photos</string>
+    <string name="reviews">Reviews</string>
+    <string name="location">Location</string>
+    <string name="directions">Get Directions</string>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="remove_from_favorites">Remove from Favorites</string>
+    <string name="write_review">Write a Review</string>
+    <string name="share">Share</string>
+    
+    <!-- Add stall strings -->
+    <string name="add_stall">Add Stall</string>
+    <string name="stall_name">Stall Name</string>
+    <string name="select_dish_type">Select Dish Type</string>
+    <string name="select_area">Select Area</string>
+    <string name="add_photos">Add Photos</string>
+    <string name="pin_location">Pin Location</string>
+    <string name="submit">Submit</string>
+    <string name="stall_added_success">Stall added successfully</string>
+    
+    <!-- Review strings -->
+    <string name="write_a_review">Write a Review</string>
+    <string name="your_rating">Your Rating</string>
+    <string name="your_comment">Your Comment</string>
+    <string name="post_review">Post Review</string>
+    <string name="review_added_success">Review added successfully</string>
+    <string name="review_hint">Share your experience with this stall…</string>
+    
+    <!-- Profile strings -->
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="my_stalls">My Stalls</string>
+    <string name="my_reviews">My Reviews</string>
+    <string name="my_favorites">My Favorites</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="change_profile_picture">Change Profile Picture</string>
+    
+    <!-- Map strings -->
+    <string name="map">Map</string>
+    <string name="nearby_stalls_map">Nearby Stalls</string>
+    <string name="show_list">Show List</string>
+    
+    <!-- Error messages -->
+    <string name="error_login">Login failed. Please check your credentials.</string>
+    <string name="error_signup">Sign up failed. Please try again.</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_empty_fields">Please fill all required fields</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_location_permission">Location permission is required</string>
+    <string name="error_adding_stall">Error adding stall</string>
+    <string name="error_loading_stall">Error loading stall</string>
+    <string name="error_stall_not_found">Stall not found</string>
+    <string name="error_uploading_images">Error uploading images</string>
+    <string name="error_loading_stalls">Error loading stalls</string>
+    <string name="error_loading_reviews">Error loading reviews</string>
+    <string name="error_adding_review">Error adding review</string>
+    
+    <!-- Permission strings -->
+    <string name="permission_rationale">Location permission is needed to show nearby stalls</string>
+    <string name="permission_denied_explanation">Location permission was denied, but is needed to show nearby stalls</string>
+    <string name="settings">Settings</string>
+    
+    <!-- Misc strings -->
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="loading">Loading…</string>
+    <!-- Empty state strings -->
+    <string name="no_stalls_found">No stalls found</string>
+    <string name="no_reviews_found">No reviews found</string>
+    <string name="error_loading_favorites">Error loading favorites</string>
+    <string name="et_review_text">Write your review here</string>
+    <string name="et_description">Description</string>
+    <string name="et_opening_hours">Opening Hours</string>
+    <string name="btn_add_images">Add Images</string>
+    <string name="rv_selected_images">Selected Images</string>
+    <string name="btn_my_location">My Location</string>
+    <string name="select_images">Select Images</string>
+    <string name="add_images">Add Images</string>
+    <string name="add_more_images">Add More Images (%1$d)</string>
+    <string name="stall_location">Stall Location</string>
+    <string name="stall_added_successfully">Stall added successfully</string>
+    <string name="tv_description">Description</string>
+    <string name="tv_opening_hours">Opening Hours</string>
+    <string name="tv_distance">Distance</string>
+    <string name="tv_owner_name">Owner</string>
+    <string name="tv_all_reviews">All Reviews</string>
+    <string name="btn_share">Share</string>
+    <string name="rv_dishes">Dishes</string>
+    <string name="fab_call">Call</string>
+    <string name="tv_bio">Bio</string>
+    <string name="owner">Owner</string>
+    <string name="popular_dishes">Popular Dishes</string>
+    <string name="call">Call</string>
+    <string name="my_location">My Location</string>
+    <string name="opening_hours">Opening Hours</string>
+    <string name="description">Description</string>
+    <string name="no_favorites_found">No favorites found</string>
+    <string name="no_stalls_added">You haven\'t added any stalls yet</string>
+    <string name="no_reviews_added">You haven\'t written any reviews yet</string>
+    <string name="no_favorites_added">You haven\'t added any favorites yet</string>
+    <string name="add_stall_prompt">Tap the + button to add a new stall</string>
+    <string name="write_review_prompt">Visit stalls to write reviews</string>
+    <string name="add_favorites_prompt">Explore stalls and add them to your favorites</string>
+    
+    <!-- Firebase and Google Sign-In -->
+    <string name="default_web_client_id">254143775334-jnhsbd4k25oo7o5bg8gclkaupho9n54p.apps.googleusercontent.com</string>
+    
+    <!-- Google Maps API -->
+    <string name="google_maps_api_key">AIzaSyAP9aRDnRkdoi-uPjMiq7hzBfr4dJMXQoc</string>
+    <string name="no_reviews_yet">No reviews yet</string>
+    <string name="be_first_to_review">Be the first to review this stall</string>
+    
+    <!-- Additional UI strings -->
+    <string name="back">Back</string>
+    <string name="selected_image">Selected image</string>
+    <string name="remove_image">Remove image</string>
+    <string name="stall_image">Stall image</string>
+    <string name="dish_image">Dish image</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="bio">Bio</string>
+    <string name="phone">Phone Number</string>
+    <string name="save">Save</string>
+    <string name="not_available">Not available</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="error_login_required">Login required</string>
+    <string name="error_no_maps_app">No maps app found</string>
+    <string name="error_no_phone">No phone number available</string>
+    <string name="error_loading_profile">Error loading profile</string>
+    <string name="error_updating_profile">Error updating profile</string>
+    <string name="error_uploading_image">Error uploading image</string>
+    <string name="profile_updated">Profile updated</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_stall_name_required">Stall name is required</string>
+    <string name="error_dish_type_required">Dish type is required</string>
+    <string name="error_area_required">Area is required</string>
+    <string name="error_location_required">Location is required</string>
+    <string name="error_images_required">At least one image is required</string>
+    <string name="error_rating_required">Rating is required</string>
+    <string name="error_review_text_required">Review text is required</string>
+    <string name="error_user_not_found">User not found</string>
+    <string name="error_loading_user">Error loading user</string>
+    <string name="error_submitting_review">Error submitting review</string>
+    <string name="error_updating_rating">Error updating rating</string>
+    <string name="review_submitted">Review submitted</string>
+    <string name="permission_required">Permission required</string>
+    <string name="error_updating_favorites">Error updating favorites</string>
+    <string name="all_reviews">All Reviews</string>
+    <string name="tab_my_stalls">My Stalls</string>
+    <string name="tab_my_reviews">My Reviews</string>
+    <string name="tab_favorites">Favorites</string>
+
+</resources>

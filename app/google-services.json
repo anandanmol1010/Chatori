@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "254143775334",
+    "project_id": "chatori-58539",
+    "storage_bucket": "chatori-58539.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254143775334:android:d6dba27141c81d95a4e3a7",
+        "android_client_info": {
+          "package_name": "com.app.chatori"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "254143775334-uvdiu07b63es5agf8mt3um9u9hq8aa13.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.chatori",
+            "certificate_hash": "87a20b2fb34cffd484820097cbf4cb3d55442b2d"
+          }
+        },
+        {
+          "client_id": "254143775334-jnhsbd4k25oo7o5bg8gclkaupho9n54p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPak4TWtRkrn8paRfXpp6oYEZgbPtYESE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "254143775334-jnhsbd4k25oo7o5bg8gclkaupho9n54p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

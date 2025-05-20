@@ -1,0 +1,577 @@
+package com.app.chatori.ui.stall;
+
+import android.content.Intent;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.app.chatori.R;
+import com.app.chatori.adapter.DishAdapter;
+import com.app.chatori.adapter.ImageSliderAdapter;
+import com.app.chatori.adapter.ReviewAdapter;
+import com.app.chatori.model.Dish;
+import com.app.chatori.model.Review;
+import com.app.chatori.model.Stall;
+import com.app.chatori.model.User;
+import com.app.chatori.repository.DishRepository;
+import com.app.chatori.repository.ReviewRepository;
+import com.app.chatori.repository.StallRepository;
+import com.app.chatori.repository.UserRepository;
+import com.app.chatori.ui.review.AllReviewsActivity;
+import com.app.chatori.ui.review.WriteReviewActivity;
+import com.app.chatori.utils.LocationUtils;
+import com.app.chatori.utils.UIUtils;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Activity for displaying detailed information about a stall.
+ */
+public class StallDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private Toolbar toolbar;
+    private ViewPager2 viewPagerImages;
+    private TextView tvStallName, tvDishType, tvArea, tvRating, tvNumRatings, tvDescription;
+    private TextView tvOpeningHours, tvDistance, tvOwnerName, tvNoReviews, tvAllReviews;
+    private RatingBar ratingBar;
+    private Button btnWriteReview, btnFavorite, btnDirections;
+    private ImageButton btnShare;
+    private RecyclerView rvDishes, rvReviews;
+    private FloatingActionButton fabCall;
+    private ProgressBar progressBar;
+    private GoogleMap mMap;
+
+    private StallRepository stallRepository;
+    private DishRepository dishRepository;
+    private ReviewRepository reviewRepository;
+    private UserRepository userRepository;
+    
+    private String stallId;
+    private Stall stall;
+    private List<Dish> dishes = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
+    private Location currentLocation;
+    private boolean isFavorite = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try {
+            setContentView(R.layout.activity_stall_detail);
+
+            // Get stall ID from intent
+            stallId = getIntent().getStringExtra("stall_id");
+            if (stallId == null) {
+                Toast.makeText(this, "Error: Stall ID is missing", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error initializing activity", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Initialize repositories
+        stallRepository = StallRepository.getInstance();
+        dishRepository = DishRepository.getInstance();
+        reviewRepository = ReviewRepository.getInstance();
+        userRepository = UserRepository.getInstance();
+
+        // Initialize views
+        initializeViews();
+
+        // Set up toolbar
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("");
+        }
+
+        // Set up map
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
+
+        // Set up click listeners
+        setupClickListeners();
+
+        // Get current location
+        getCurrentLocation();
+
+        // Load stall data
+        loadStallData();
+    }
+
+    /**
+     * Initializes views
+     */
+    private void initializeViews() {
+        toolbar = findViewById(R.id.toolbar);
+        viewPagerImages = findViewById(R.id.view_pager_images);
+        tvStallName = findViewById(R.id.tv_stall_name);
+        tvDishType = findViewById(R.id.tv_dish_type);
+        tvArea = findViewById(R.id.tv_area);
+        tvRating = findViewById(R.id.tv_rating);
+        tvNumRatings = findViewById(R.id.tv_num_ratings);
+        tvDescription = findViewById(R.id.tv_description);
+        tvOpeningHours = findViewById(R.id.tv_opening_hours);
+        tvDistance = findViewById(R.id.tv_distance);
+        tvOwnerName = findViewById(R.id.tv_owner_name);
+        tvNoReviews = findViewById(R.id.tv_no_reviews);
+        tvAllReviews = findViewById(R.id.tv_all_reviews);
+        ratingBar = findViewById(R.id.rating_bar);
+        btnWriteReview = findViewById(R.id.btn_write_review);
+        btnShare = findViewById(R.id.btn_share);
+        btnFavorite = findViewById(R.id.btn_favorite);
+        btnDirections = findViewById(R.id.btn_directions);
+        rvDishes = findViewById(R.id.rv_dishes);
+        rvReviews = findViewById(R.id.rv_reviews);
+        fabCall = findViewById(R.id.fab_call);
+        progressBar = findViewById(R.id.progress_bar);
+    }
+
+    /**
+     * Sets up click listeners for buttons
+     */
+    private void setupClickListeners() {
+        btnWriteReview.setOnClickListener(v -> {
+            if (stall != null) {
+                Intent intent = new Intent(this, WriteReviewActivity.class);
+                intent.putExtra("stall_id", stall.getStallId());
+                intent.putExtra("stall_name", stall.getName());
+                startActivity(intent);
+            }
+        });
+
+        btnShare.setOnClickListener(v -> {
+            if (stall != null) {
+                String shareText = "Check out " + stall.getName() + " on Chatori! " +
+                        "They serve amazing " + stall.getDishType() + " in " + stall.getArea() + ".";
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                startActivity(Intent.createChooser(shareIntent, "Share via"));
+            }
+        });
+
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
+
+        btnDirections.setOnClickListener(v -> {
+            if (stall != null && stall.getLocation() != null) {
+                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + 
+                        stall.getLocation().getLatitude() + "," + 
+                        stall.getLocation().getLongitude());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                } else {
+                    Toast.makeText(this, getString(R.string.error_no_maps_app), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        fabCall.setOnClickListener(v -> {
+            if (stall != null && stall.getPhone() != null && !stall.getPhone().isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + stall.getPhone()));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, getString(R.string.error_no_phone), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        tvAllReviews.setOnClickListener(v -> {
+            if (stall != null) {
+                Intent intent = new Intent(this, AllReviewsActivity.class);
+                intent.putExtra("stall_id", stall.getStallId());
+                intent.putExtra("stall_name", stall.getName());
+                startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * Gets the current location of the device
+     */
+    private void getCurrentLocation() {
+        if (LocationUtils.hasLocationPermission(this)) {
+            LocationUtils.getLastLocation(this)
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            currentLocation = location;
+                            updateDistanceUI();
+                        }
+                    });
+        } else {
+            LocationUtils.requestLocationPermission(this);
+        }
+    }
+
+    /**
+     * Loads stall data from Firestore
+     */
+    private void loadStallData() {
+        try {
+            if (progressBar != null) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+            
+            if (stallRepository == null) {
+                stallRepository = StallRepository.getInstance();
+            }
+
+            stallRepository.getStallById(stallId)
+                    .addOnSuccessListener(documentSnapshot -> {
+                        try {
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                try {
+                                    stall = documentSnapshot.toObject(Stall.class);
+                                    if (stall != null) {
+                                        // Ensure the stall ID is set correctly
+                                        if (stall.getStallId() == null) {
+                                            stall.setStallId(stallId);
+                                        }
+                                        updateUI();
+                                        loadDishes();
+                                        loadReviews();
+                                        checkIfFavorite();
+                                    } else {
+                                        throw new Exception("Failed to convert document to Stall object");
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(StallDetailActivity.this, "Error parsing stall data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            } else {
+                                Toast.makeText(StallDetailActivity.this, getString(R.string.error_stall_not_found), Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(StallDetailActivity.this, "Error processing stall data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
+                        } finally {
+                            if (progressBar != null) {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                    })
+                        finish();
+                    }
+                    progressBar.setVisibility(View.GONE);
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(this, getString(R.string.error_loading_stall), Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+    }
+
+    /**
+     * Updates the UI with stall data
+     */
+    private void updateUI() {
+        try {
+            // Set stall name
+            if (stall.getName() != null) {
+                tvStallName.setText(stall.getName());
+            }
+            
+            // Set dish type
+            if (stall.getDishType() != null) {
+                tvDishType.setText(stall.getDishType());
+            }
+            
+            // Set area
+            if (stall.getArea() != null) {
+                tvArea.setText(stall.getArea());
+            }
+            
+            // Set rating
+            ratingBar.setRating(stall.getRating());
+            tvRating.setText(String.format("%.1f", stall.getRating()));
+            tvNumRatings.setText(String.format("(%d)", stall.getNumRatings()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // Set description
+        if (stall.getDescription() != null && !stall.getDescription().isEmpty()) {
+            tvDescription.setText(stall.getDescription());
+            tvDescription.setVisibility(View.VISIBLE);
+        } else {
+            tvDescription.setVisibility(View.GONE);
+        }
+        
+        // Set opening hours
+        if (stall.getOpeningHours() != null && !stall.getOpeningHours().isEmpty()) {
+            tvOpeningHours.setText(stall.getOpeningHours());
+        } else {
+            tvOpeningHours.setText(R.string.not_available);
+        }
+        
+        // Set owner name
+        if (stall.getOwnerName() != null && !stall.getOwnerName().isEmpty()) {
+            tvOwnerName.setText(stall.getOwnerName());
+        } else {
+            tvOwnerName.setText(R.string.not_available);
+        }
+        
+        // Set up image slider
+        if (stall.getImages() != null && !stall.getImages().isEmpty() && viewPagerImages != null) {
+            try {
+                ImageSliderAdapter imageAdapter = new ImageSliderAdapter(this, stall.getImages());
+                viewPagerImages.setAdapter(imageAdapter);
+            } catch (Exception e) {
+                // Log the error but don't crash
+                e.printStackTrace();
+            }
+        }
+        
+        // Update distance UI
+        updateDistanceUI();
+        
+        // Update map
+        updateMap();
+    }
+
+    /**
+     * Updates the distance UI
+     */
+    private void updateDistanceUI() {
+        if (stall != null && stall.getLocation() != null && currentLocation != null) {
+            double distance = LocationUtils.calculateDistance(
+                    currentLocation.getLatitude(), currentLocation.getLongitude(),
+                    stall.getLocation().getLatitude(), stall.getLocation().getLongitude());
+            
+            String distanceText;
+            if (distance < 1) {
+                // Convert to meters
+                int meters = (int) (distance * 1000);
+                distanceText = meters + " m";
+            } else {
+                // Round to one decimal place
+                distanceText = String.format("%.1f km", distance);
+            }
+            
+            tvDistance.setText(distanceText);
+            tvDistance.setVisibility(View.VISIBLE);
+        } else {
+            tvDistance.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Updates the map with stall location
+     */
+    private void updateMap() {
+        if (mMap != null && stall != null && stall.getLocation() != null) {
+            try {
+                LatLng stallLocation = new LatLng(
+                        stall.getLocation().getLatitude(),
+                        stall.getLocation().getLongitude());
+                
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(stallLocation).title(stall.getName()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stallLocation, 15));
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Don't crash if there's an issue with the map
+            }
+        }
+    }
+
+    /**
+     * Loads dishes for the stall from Firestore
+     */
+    private void loadDishes() {
+        dishRepository.getDishesByStallId(stallId)
+                .addOnSuccessListener(querySnapshot -> {
+                    dishes.clear();
+                    for (DocumentSnapshot document : querySnapshot) {
+                        Dish dish = document.toObject(Dish.class);
+                        if (dish != null) {
+                            dishes.add(dish);
+                        }
+                    }
+                    
+                    // Set up dishes RecyclerView
+                    if (!dishes.isEmpty()) {
+                        DishAdapter dishAdapter = new DishAdapter(this, dishes);
+                        rvDishes.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+                        rvDishes.setAdapter(dishAdapter);
+                        rvDishes.setVisibility(View.VISIBLE);
+                    } else {
+                        rvDishes.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    /**
+     * Loads reviews for the stall from Firestore
+     */
+    private void loadReviews() {
+        reviewRepository.getReviewsByStallId(stallId, 3) // Limit to 3 reviews
+                .addOnSuccessListener(querySnapshot -> {
+                    reviews.clear();
+                    for (DocumentSnapshot document : querySnapshot) {
+                        Review review = document.toObject(Review.class);
+                        if (review != null) {
+                            reviews.add(review);
+                        }
+                    }
+                    
+                    // Set up reviews RecyclerView
+                    if (!reviews.isEmpty()) {
+                        ReviewAdapter reviewAdapter = new ReviewAdapter(this, reviews, false);
+                        rvReviews.setLayoutManager(new LinearLayoutManager(this));
+                        rvReviews.setAdapter(reviewAdapter);
+                        rvReviews.setVisibility(View.VISIBLE);
+                        tvNoReviews.setVisibility(View.GONE);
+                        
+                        // Show "See All Reviews" if there are more than 3 reviews
+                        if (stall.getNumRatings() > 3) {
+                            tvAllReviews.setVisibility(View.VISIBLE);
+                        } else {
+                            tvAllReviews.setVisibility(View.GONE);
+                        }
+                    } else {
+                        rvReviews.setVisibility(View.GONE);
+                        tvNoReviews.setVisibility(View.VISIBLE);
+                        tvAllReviews.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    /**
+     * Checks if the stall is in the user's favorites
+     */
+    private void checkIfFavorite() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        userRepository.getUserById(currentUser.getUid())
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null && user.getFavoriteStalls() != null) {
+                            isFavorite = user.getFavoriteStalls().contains(stallId);
+                            updateFavoriteButton();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Toggles the favorite status of the stall
+     */
+    private void toggleFavorite() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, getString(R.string.error_login_required), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        userRepository.toggleFavoriteStall(currentUser.getUid(), stallId)
+                .addOnSuccessListener(aVoid -> {
+                    isFavorite = !isFavorite;
+                    updateFavoriteButton();
+                    
+                    if (isFavorite) {
+                        Toast.makeText(this, getString(R.string.added_to_favorites), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, getString(R.string.error_updating_favorites), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Updates the favorite button text based on favorite status
+     */
+    private void updateFavoriteButton() {
+        // For a Button, we need to update the text instead of the image
+        btnFavorite.setText(isFavorite ? R.string.remove_from_favorites : R.string.add_to_favorites);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        updateMap();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LocationUtils.LOCATION_PERMISSION_REQUEST_CODE) {
+            getCurrentLocation();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload reviews when activity resumes
+        if (stall != null) {
+            loadReviews();
+            // Reload stall data to get updated rating
+            stallRepository.getStallById(stallId)
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            stall = documentSnapshot.toObject(Stall.class);
+                            if (stall != null) {
+                                // Update rating
+                                ratingBar.setRating(stall.getRating());
+                                tvRating.setText(String.format("%.1f", stall.getRating()));
+                                tvNumRatings.setText(String.format("(%d)", stall.getNumRatings()));
+                            }
+                        }
+                    });
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary brand colors -->
+    <color name="colorPrimary">#FF5722</color>
+    <color name="colorPrimaryDark">#E64A19</color>
+    <color name="colorAccent">#FFC107</color>
+    
+    <!-- Secondary colors -->
+    <color name="colorSecondary">#4CAF50</color>
+    <color name="colorSecondaryDark">#388E3C</color>
+    
+    <!-- Rating colors -->
+    <color name="colorRatingHigh">#4CAF50</color>
+    <color name="colorRatingMedium">#FFC107</color>
+    <color name="colorRatingLow">#F44336</color>
+    
+    <!-- Text colors -->
+    <color name="colorTextPrimary">#212121</color>
+    <color name="colorTextSecondary">#757575</color>
+    <color name="colorTextLight">#FFFFFF</color>
+    
+    <!-- Background colors -->
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorBackgroundDark">#F5F5F5</color>
+    <color name="colorDivider">#EEEEEE</color>
+    
+    <!-- Standard colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
