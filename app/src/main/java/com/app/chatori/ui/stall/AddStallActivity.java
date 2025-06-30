@@ -321,12 +321,6 @@ public class AddStallActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
 
-        // Validate images
-        if (selectedImageUris.isEmpty()) {
-            Toast.makeText(this, getString(R.string.error_images_required), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // Check if user is logged in
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -337,92 +331,19 @@ public class AddStallActivity extends AppCompatActivity implements OnMapReadyCal
         progressBar.setVisibility(View.VISIBLE);
         btnSubmit.setEnabled(false);
 
-        // Upload images first
-        uploadImages(stallName, description, openingHours, phone, area, currentUser.getUid());
+        // Handle images without uploading to Firebase Storage
+        handleImagesWithoutUpload(stallName, description, openingHours, phone, area, currentUser.getUid());
     }
 
     /**
-     * Uploads stall images to Firebase Storage with improved error handling
+     * Handles image processing without uploading to Firebase Storage.
      */
-    private void uploadImages(String stallName, String description, String openingHours, String phone, String area, String userId) {
+    private void handleImagesWithoutUpload(String stallName, String description, String openingHours, String phone, String area, String userId) {
         List<String> imageUrls = new ArrayList<>();
-        final int[] uploadedCount = {0};
-        final int[] failedCount = {0};
-        final int totalCount = selectedImageUris.size();
-        final int maxRetries = 2; // Maximum number of retries for failed uploads
-        
-        // Show progress update to user
-        progressBar.setProgress(0);
-        progressBar.setMax(totalCount);
-
-        for (Uri imageUri : selectedImageUris) {
-            uploadSingleImage(imageUri, imageUrls, uploadedCount, failedCount, totalCount, 0, maxRetries, 
-                    () -> {
-                        // All images processed (success or failure)
-                        if (uploadedCount[0] + failedCount[0] >= totalCount) {
-                            // If at least one image was uploaded successfully, proceed
-                            if (!imageUrls.isEmpty()) {
-                                addStallToFirestore(stallName, description, openingHours, phone, area, userId, imageUrls);
-                            } else {
-                                // All uploads failed
-                                progressBar.setVisibility(View.GONE);
-                                btnSubmit.setEnabled(true);
-                                Toast.makeText(AddStallActivity.this, getString(R.string.error_uploading_images), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-        }
-    }
-    
-    /**
-     * Uploads a single image with retry logic
-     */
-    private void uploadSingleImage(Uri imageUri, List<String> imageUrls, int[] uploadedCount, int[] failedCount, 
-                                  int totalCount, int currentRetry, int maxRetries, Runnable onComplete) {
-        String imageName = UUID.randomUUID().toString();
-        StorageReference imageRef = storageRef.child("stall_images/" + imageName);
-        
-        imageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Get download URL
-                    imageRef.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                synchronized (imageUrls) {
-                                    imageUrls.add(uri.toString());
-                                    uploadedCount[0]++;
-                                    progressBar.setProgress(uploadedCount[0] + failedCount[0]);
-                                    onComplete.run();
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                // Failed to get download URL
-                                if (currentRetry < maxRetries) {
-                                    // Retry
-                                    uploadSingleImage(imageUri, imageUrls, uploadedCount, failedCount, totalCount, currentRetry + 1, maxRetries, onComplete);
-                                } else {
-                                    // Max retries reached
-                                    synchronized (imageUrls) {
-                                        failedCount[0]++;
-                                        progressBar.setProgress(uploadedCount[0] + failedCount[0]);
-                                        onComplete.run();
-                                    }
-                                }
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    // Failed to upload
-                    if (currentRetry < maxRetries) {
-                        // Retry
-                        uploadSingleImage(imageUri, imageUrls, uploadedCount, failedCount, totalCount, currentRetry + 1, maxRetries, onComplete);
-                    } else {
-                        // Max retries reached
-                        synchronized (imageUrls) {
-                            failedCount[0]++;
-                            progressBar.setProgress(uploadedCount[0] + failedCount[0]);
-                            onComplete.run();
-                        }
-                    }
-                });
+        // Directly add stall to Firestore without uploading images
+        addStallToFirestore(stallName, description, openingHours, phone, area, userId, imageUrls);
+        // Notify user that images are not uploaded
+        Toast.makeText(this, "Images are not uploaded due to billing constraints.", Toast.LENGTH_SHORT).show();
     }
 
     /**

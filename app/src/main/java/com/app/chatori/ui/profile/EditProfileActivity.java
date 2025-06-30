@@ -170,9 +170,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // If image was changed, upload it first
+        // If image was changed, skip image upload
         if (imageUri != null) {
-            uploadImage(name, bio, phone);
+            handleProfileImageWithoutUpload(name, bio, phone);
         } else {
             // Otherwise just update user data
             updateUserData(name, bio, phone, currentImageUrl);
@@ -180,26 +180,13 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Uploads image to Firebase Storage
+     * Skips image upload and updates user data without an image URL.
      */
-    private void uploadImage(String name, String bio, String phone) {
-        String imageName = UUID.randomUUID().toString();
-        StorageReference imageRef = storageRef.child("profile_images/" + imageName);
-
-        imageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl()
-                        .addOnSuccessListener(uri -> {
-                            String imageUrl = uri.toString();
-                            updateUserData(name, bio, phone, imageUrl);
-                        })
-                        .addOnFailureListener(e -> {
-                            progressBar.setVisibility(View.GONE);
-                            Toast.makeText(this, getString(R.string.error_uploading_image), Toast.LENGTH_SHORT).show();
-                        }))
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, getString(R.string.error_uploading_image), Toast.LENGTH_SHORT).show();
-                });
+    private void handleProfileImageWithoutUpload(String name, String bio, String phone) {
+        // Directly update user data without uploading image
+        updateUserData(name, bio, phone, null);
+        // Notify user that image upload is skipped
+        Toast.makeText(this, "Profile image upload skipped due to billing constraints.", Toast.LENGTH_SHORT).show();
     }
 
     /**
